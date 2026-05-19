@@ -157,18 +157,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.store-map-controls button:last-child {
-  width: auto;
-  border-radius: 22px;
-  font-size: 14px;
-  padding: 0 16px;
-  margin-top: 8px;
+.store-map-controls button:hover {
+  background-color: #faf6eb;
+  transform: scale(1.05);
 }
 
 .store-map-controls button:active {
   background-color: var(--color-light-gray);
+  transform: scale(0.95);
 }
 
 /* Dev mode indicator */

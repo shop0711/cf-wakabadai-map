@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { Trees, Car, Compass, Navigation } from "lucide-react";
+import { Trees, Car, Compass, Navigation, RotateCcw } from "lucide-react";
 import { mapPins } from "../../data/mapData";
 import type { MapPinData } from "../../data/mapData";
 import { MapPin } from "./MapPin";
@@ -321,9 +321,11 @@ export const StoreMap: React.FC = () => {
             <>
               {/* Map Controls */}
               <div className="store-map-controls">
-                <button onClick={() => zoomIn()}>+</button>
-                <button onClick={() => zoomOut()}>−</button>
-                <button onClick={() => resetTransform()}>リセット</button>
+                <button onClick={() => zoomIn()} title="ズームイン">+</button>
+                <button onClick={() => zoomOut()} title="ズームアウト">−</button>
+                <button onClick={() => resetTransform()} title="表示をリセット">
+                  <RotateCcw size={18} />
+                </button>
                 {/* 現在地ボタン */}
                 <button
                   className={`location-btn ${
