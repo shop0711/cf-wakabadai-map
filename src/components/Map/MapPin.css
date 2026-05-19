@@ -49,3 +49,57 @@
   background-color: var(--color-white);
   max-width: none;
 }
+
+/* Tablet adjustments (screen width <= 1024px) */
+@media (max-width: 1024px) {
+  .map-pin-marker {
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .map-pin-marker svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .map-pin-container.selected .map-pin-marker {
+    transform: scale(1.15);
+  }
+
+  .map-pin-label {
+    margin-top: 2px;
+    padding: 1px 5px;
+    font-size: 9px;
+    border-radius: 8px;
+  }
+}
+
+/* Smartphone adjustments (screen width <= 600px) */
+@media (max-width: 600px) {
+  .map-pin-marker {
+    width: 20px;
+    height: 20px;
+    border-width: 1.5px;
+    box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.18);
+  }
+
+  .map-pin-marker svg {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .map-pin-container.selected .map-pin-marker {
+    transform: scale(1.2);
+  }
+
+  .map-pin-label {
+    margin-top: 1px;
+    padding: 1px 4px;
+    font-size: 8px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+}
+
