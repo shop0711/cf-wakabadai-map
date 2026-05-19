@@ -8,7 +8,6 @@ import {
   Candy,
   CircleDot,
   Gamepad2,
-  Disc3,
   CalendarDays,
   GraduationCap,
   Gift,

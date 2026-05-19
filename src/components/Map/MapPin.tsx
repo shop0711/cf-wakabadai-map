@@ -11,7 +11,7 @@ interface MapPinProps {
   isEditMode?: boolean;
   onDragStart?: () => void;
   onDragEnd?: (id: string, newX: number, newY: number) => void;
-  dragConstraintsRef?: React.RefObject<HTMLDivElement>;
+  dragConstraintsRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export const MapPin: React.FC<MapPinProps> = ({
@@ -26,7 +26,7 @@ export const MapPin: React.FC<MapPinProps> = ({
   const Icon = getCategoryIcon(pin.category);
   const color = getCategoryColor(pin.category);
 
-  const handleDragEnd = (event: any, info: any) => {
+  const handleDragEnd = (_event: any, info: any) => {
     if (!onDragEnd || !dragConstraintsRef?.current) return;
     const canvas = dragConstraintsRef.current;
     const rect = canvas.getBoundingClientRect();
