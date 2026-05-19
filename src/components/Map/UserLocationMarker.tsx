@@ -36,6 +36,8 @@ export const UserLocationMarker: React.FC<UserLocationMarkerProps> = ({
         // ピンと同様にズームスケールロック
         transform: `translate(-50%, -50%) scale(${1 / zoomScale})`,
       }}
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
     >
       {/* 精度サークル（位置精度の範囲を視覚化） */}
       <div

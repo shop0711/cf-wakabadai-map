@@ -82,31 +82,53 @@ export const StoreMap: React.FC = () => {
     }, 50);
   };
 
-  // Canvas click handler (supports logging in dev/edit mode, toggles fullscreen in embed mode)
-  const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    // 1. Notify parent window for toggling fullscreen map (very premium UX)
-    if (isEmbed) {
-      window.parent.postMessage({ type: "MAP_BACKGROUND_CLICK" }, "*");
+  const pointerStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    // Only track left clicks or primary touch pointer
+    if (e.button !== 0 && !e.isPrimary) return;
+    pointerStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      time: Date.now()
+    };
+  }, []);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!pointerStartRef.current) return;
+    const dx = e.clientX - pointerStartRef.current.x;
+    const dy = e.clientY - pointerStartRef.current.y;
+    const dt = Date.now() - pointerStartRef.current.time;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    pointerStartRef.current = null;
+
+    // Trigger only on genuine single taps: distance < 10px, duration < 250ms
+    if (distance < 10 && dt < 250) {
+      // 1. Notify parent window for toggling fullscreen map (very premium UX)
+      if (isEmbed) {
+        window.parent.postMessage({ type: "MAP_BACKGROUND_CLICK" }, "*");
+      }
+
+      if (!hasEditPermission) return;
+      if (isEditMode) return; // Skip coordinate logging on standard click if in edit mode
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+      const yPct = ((e.clientY - rect.top) / rect.height) * 100;
+
+      const clickString = `📍 [DEV] Map Click → x: ${xPct.toFixed(1)}, y: ${yPct.toFixed(1)}`;
+      console.log(clickString);
+
+      navigator.clipboard.writeText(clickString).then(() => {
+        setToastMessage(`座標をコピーしました！\nx: ${xPct.toFixed(1)}, y: ${yPct.toFixed(1)}`);
+      }).catch(() => {
+        setToastMessage(`座標を取得しました！\nx: ${xPct.toFixed(1)}, y: ${yPct.toFixed(1)}`);
+      });
     }
-
-    if (!hasEditPermission) return;
-    if (isEditMode) return; // Skip coordinate logging on standard click if in edit mode
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const xPct = ((e.clientX - rect.left) / rect.width) * 100;
-    const yPct = ((e.clientY - rect.top) / rect.height) * 100;
-
-    const clickString = `📍 [DEV] Map Click → x: ${xPct.toFixed(1)}, y: ${yPct.toFixed(1)}`;
-    console.log(clickString);
-
-    navigator.clipboard.writeText(clickString).then(() => {
-      setToastMessage(`座標をコピーしました！\nx: ${xPct.toFixed(1)}, y: ${yPct.toFixed(1)}`);
-    }).catch(() => {
-      setToastMessage(`座標を取得しました！\nx: ${xPct.toFixed(1)}, y: ${yPct.toFixed(1)}`);
-    });
   }, [hasEditPermission, isEditMode, isEmbed]);
 
   // Handle drag start - temporarily disable map panning/zooming to allow smooth pin drag
@@ -358,7 +380,11 @@ export const StoreMap: React.FC = () => {
               </div>
 
               <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }}>
-                <div className="store-map-world">
+                <div 
+                  className="store-map-world"
+                  onPointerDown={handlePointerDown}
+                  onPointerUp={handlePointerUp}
+                >
                   {/* 🧭 北を示す方位磁針 */}
                   <div className="surrounding-compass">
                     <Compass size={14} />
@@ -404,7 +430,6 @@ export const StoreMap: React.FC = () => {
                     <div
                       ref={canvasRef}
                       className="store-map-canvas"
-                      onClick={handleCanvasClick}
                     >
                       {/* Floor map image as background */}
                       <img

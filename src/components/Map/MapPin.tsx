@@ -57,6 +57,12 @@ export const MapPin: React.FC<MapPinProps> = ({
         e.stopPropagation();
         onClick(pin);
       }}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+      }}
+      onPointerUp={(e) => {
+        e.stopPropagation();
+      }}
       // Framer Motion Drag configuration
       drag={isEditMode}
       dragMomentum={false}
