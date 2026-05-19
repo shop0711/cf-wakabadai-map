@@ -1,0 +1,225 @@
+/* ============================================================
+   ユーザー現在地マーカーのスタイリング
+   Apple Maps / Google Maps 風のプレミアムなパルスドット
+   ============================================================ */
+
+.user-location-container {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15; /* ピン（z-index: 10）より上、UI要素より下 */
+  pointer-events: none; /* マーカー自体はクリック不可 */
+}
+
+/* 中心の青いドット */
+.user-location-dot {
+  border-radius: 50%;
+  border: 2.5px solid #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(33, 150, 243, 0.4),
+    0 2px 8px rgba(33, 150, 243, 0.5);
+  z-index: 3;
+  position: absolute;
+}
+
+/* パルスアニメーション（ドットの外側で脈動するリング） */
+.user-location-pulse {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(33, 150, 243, 0.25);
+  z-index: 1;
+  animation: locationPulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes locationPulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* 精度サークル（GPSの誤差範囲を可視化） */
+.user-location-accuracy-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid;
+  z-index: 0;
+  transition: width 0.5s ease-out, height 0.5s ease-out;
+  /* 精度が変化した際にスムーズにリサイズ */
+}
+
+/* 精度が低い場合に表示される注釈ラベル */
+.user-location-accuracy-label {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(33, 150, 243, 0.9);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+  letter-spacing: 0.02em;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ============================================================
+   「現在地」ボタンのスタイリング（マップコントロール内に配置）
+   ============================================================ */
+
+.location-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background-color: #ffffff;
+  color: #2196F3;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.location-btn:hover {
+  background-color: #e3f2fd;
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.25);
+  transform: translateY(-1px);
+}
+
+.location-btn:active {
+  background-color: #bbdefb;
+  transform: translateY(0);
+}
+
+.location-btn.tracking {
+  background-color: #2196F3;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.4);
+}
+
+.location-btn.tracking:hover {
+  background-color: #1976D2;
+}
+
+/* 追跡中のドットアニメーション */
+.location-btn.tracking::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  top: 6px;
+  right: 6px;
+  animation: trackingBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes trackingBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* エラー状態の「現在地」ボタン */
+.location-btn.error {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+/* 位置情報ステータスバナー */
+.location-status-banner {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(33, 150, 243, 0.95);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(33, 150, 243, 0.35);
+  z-index: 10000;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  animation: slideDownIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: 85vw;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.location-status-banner.error {
+  background: rgba(198, 40, 40, 0.95);
+  box-shadow: 0 8px 24px rgba(198, 40, 40, 0.35);
+}
+
+.location-status-banner.warning {
+  background: rgba(230, 81, 0, 0.95);
+  box-shadow: 0 8px 24px rgba(230, 81, 0, 0.35);
+}
+
+.location-status-banner .banner-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.location-status-banner .banner-close:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* スマートフォン向け微調整 */
+@media (max-width: 600px) {
+  .location-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 17px;
+  }
+
+  .user-location-accuracy-label {
+    font-size: 8px;
+    padding: 2px 6px;
+  }
+
+  .location-status-banner {
+    font-size: 11px;
+    padding: 8px 14px;
+    top: 64px;
+  }
+}

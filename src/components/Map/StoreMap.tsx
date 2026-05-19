@@ -4,7 +4,10 @@ import { mapPins } from "../../data/mapData";
 import type { MapPinData } from "../../data/mapData";
 import { MapPin } from "./MapPin";
 import { MapBottomSheet } from "./MapBottomSheet";
+import { UserLocationMarker } from "./UserLocationMarker";
+import { useGeolocation } from "../../hooks/useGeolocation";
 import "./StoreMap.css";
+import "./UserLocationMarker.css";
 
 const IS_DEV = import.meta.env.DEV;
 
@@ -19,6 +22,17 @@ export const StoreMap: React.FC = () => {
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const transformRef = useRef<any>(null);
+
+  // Geolocation（現在地追跡）
+  const {
+    position: userPosition,
+    status: locationStatus,
+    errorMessage: locationError,
+    startTracking,
+    stopTracking,
+    isTracking,
+  } = useGeolocation();
+  const [showLocationBanner, setShowLocationBanner] = useState<boolean>(false);
 
   // Sync pins when mapPins database is updated, or load from localStorage
   useEffect(() => {
@@ -303,6 +317,30 @@ export const StoreMap: React.FC = () => {
                 <button onClick={() => zoomIn()}>+</button>
                 <button onClick={() => zoomOut()}>−</button>
                 <button onClick={() => resetTransform()}>リセット</button>
+                {/* 現在地ボタン */}
+                <button
+                  className={`location-btn ${
+                    isTracking ? "tracking" : ""
+                  } ${
+                    locationStatus === "denied" || locationStatus === "error" || locationStatus === "unavailable"
+                      ? "error"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    if (isTracking) {
+                      stopTracking();
+                      setShowLocationBanner(false);
+                    } else {
+                      startTracking();
+                      setShowLocationBanner(true);
+                      // 5秒後にバナーを自動的に消す
+                      setTimeout(() => setShowLocationBanner(false), 5000);
+                    }
+                  }}
+                  title={isTracking ? "現在地の追跡を停止" : "現在地を表示"}
+                >
+                  📍
+                </button>
               </div>
 
               <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }}>
@@ -333,6 +371,14 @@ export const StoreMap: React.FC = () => {
                       zoomScale={zoomScale}
                     />
                   ))}
+
+                  {/* ユーザー現在地マーカー */}
+                  {userPosition && (
+                    <UserLocationMarker
+                      position={userPosition}
+                      zoomScale={zoomScale}
+                    />
+                  )}
                 </div>
               </TransformComponent>
             </>
@@ -346,6 +392,26 @@ export const StoreMap: React.FC = () => {
           {isEditMode 
             ? "【編集モード】ピンを選択：ドラッグで移動、矢印キーで微調整(Shiftで大きく)、Escapeで選択解除" 
             : "DEV: クリックで座標コピー | 右上のボタンでドラッグ調整可能（隠し編集モード有効）"}
+        </div>
+      )}
+
+      {/* 位置情報ステータスバナー */}
+      {showLocationBanner && locationStatus === "requesting" && (
+        <div className="location-status-banner">
+          <span>📡 位置情報を取得中...</span>
+          <button className="banner-close" onClick={() => setShowLocationBanner(false)}>✕</button>
+        </div>
+      )}
+      {locationError && (
+        <div className={`location-status-banner ${locationStatus === "denied" ? "error" : "warning"}`}>
+          <span>{locationError}</span>
+          <button className="banner-close" onClick={() => { stopTracking(); }}>✕</button>
+        </div>
+      )}
+      {userPosition && !userPosition.isInsideStore && isTracking && (
+        <div className="location-status-banner warning">
+          <span>📍 現在、店舗の建物範囲外にいるようです。店内に入ると正確な位置が表示されます。</span>
+          <button className="banner-close" onClick={() => stopTracking()}>✕</button>
         </div>
       )}
 
