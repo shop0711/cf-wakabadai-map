@@ -21,6 +21,8 @@ export const StoreMap: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [zoomScale, setZoomScale] = useState<number>(1);
   const [hasEditPermission, setHasEditPermission] = useState<boolean>(false);
+  const [isEmbed, setIsEmbed] = useState<boolean>(false);
+  const [isMobile] = useState<boolean>(window.innerWidth < 600);
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const transformRef = useRef<any>(null);
@@ -59,11 +61,12 @@ export const StoreMap: React.FC = () => {
     setPins(mapPins);
   }, []);
 
-  // Determine if editing options should be enabled (URL parameters: ?edit=true or ?dev=true)
+  // Determine if editing options should be enabled and if map is embedded (URL parameters)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const hasParam = params.get("edit") === "true" || params.get("dev") === "true";
     setHasEditPermission(IS_DEV || hasParam);
+    setIsEmbed(params.get("embed") === "true");
   }, []);
 
   const handlePinClick = (pin: MapPinData) => {
@@ -242,7 +245,7 @@ export const StoreMap: React.FC = () => {
   }, [toastMessage]);
 
   return (
-    <div className="store-map-container">
+    <div className={`store-map-container ${isEmbed ? "embed" : ""}`}>
       {/* Toast Notification */}
       {toastMessage && (
         <div className="map-toast-notification">
@@ -253,53 +256,55 @@ export const StoreMap: React.FC = () => {
       )}
 
       {/* Header */}
-      <header className="store-map-header">
-        <div>
-          <h1>コーチャンフォー若葉台店</h1>
-          <p>インタラクティブ・フロアマップ</p>
-        </div>
-        
-        <div className="header-actions">
-          {hasEditPermission && (
-            <>
-              {isEditMode && (
-                <>
-                  <button 
-                    className="export-coords-btn" 
-                    onClick={handleExportCoordinates}
-                    title="現在の座標を TypeScript の配列定義の形でコピーします"
-                  >
-                    📋 座標コードをコピー
-                  </button>
-                  <button 
-                    className="reset-coords-btn" 
-                    onClick={handleResetToDefault}
-                    title="ピンの位置をすべてデフォルトの初期位置に戻します"
-                  >
-                    🔄 位置を初期化
-                  </button>
-                </>
-              )}
+      {!isEmbed && (
+        <header className="store-map-header">
+          <div>
+            <h1>コーチャンフォー若葉台店</h1>
+            <p>インタラクティブ・フロアマップ</p>
+          </div>
+          
+          <div className="header-actions">
+            {hasEditPermission && (
+              <>
+                {isEditMode && (
+                  <>
+                    <button 
+                      className="export-coords-btn" 
+                      onClick={handleExportCoordinates}
+                      title="現在の座標を TypeScript の配列定義の形でコピーします"
+                    >
+                      📋 座標コードをコピー
+                    </button>
+                    <button 
+                      className="reset-coords-btn" 
+                      onClick={handleResetToDefault}
+                      title="ピンの位置をすべてデフォルトの初期位置に戻します"
+                    >
+                      🔄 位置を初期化
+                    </button>
+                  </>
+                )}
 
-              <button
-                className={`edit-mode-toggle-btn ${isEditMode ? "active" : ""}`}
-                onClick={() => {
-                  setIsEditMode(!isEditMode);
-                  setSelectedPin(null); // Close sheet when switching modes
-                }}
-              >
-                {isEditMode ? "💾 調整完了 (通常モードへ)" : "📍 ピン調整モード (ドラッグ＆ドロップ可)"}
-              </button>
-            </>
-          )}
-        </div>
-      </header>
+                <button
+                  className={`edit-mode-toggle-btn ${isEditMode ? "active" : ""}`}
+                  onClick={() => {
+                    setIsEditMode(!isEditMode);
+                    setSelectedPin(null); // Close sheet when switching modes
+                  }}
+                >
+                  {isEditMode ? "💾 調整完了 (通常モードへ)" : "📍 ピン調整モード (ドラッグ＆ドロップ可)"}
+                </button>
+              </>
+            )}
+          </div>
+        </header>
+      )}
 
       {/* Map Area */}
       <div className="store-map-viewport">
         <TransformWrapper
           ref={transformRef}
-          initialScale={1}
+          initialScale={isMobile ? 1.6 : 1}
           initialPositionX={0}
           initialPositionY={0}
           minScale={0.5}

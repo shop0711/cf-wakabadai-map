@@ -292,3 +292,47 @@
   transform: translateY(0);
 }
 
+/* 📥 埋め込みモード (?embed=true) 専用のスタイリング */
+.store-map-container.embed {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+.store-map-container.embed .store-map-viewport {
+  box-shadow: none;
+  background: radial-gradient(circle, #fcfaf2 0%, #e2d9c8 100%);
+}
+
+/* 埋め込みモード時は余白を極限まで削り、店舗マップを画面いっぱいに表示 */
+.store-map-container.embed .store-map-world {
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: auto; /* 高さは親要素に100%追従させる */
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* 埋め込みモード時のトースト位置の調整 (ヘッダーが無いので上部ぴったりに) */
+.store-map-container.embed .map-toast-notification {
+  top: 20px;
+}
+
+/* 埋め込みモード時かつモバイル用の更なる微調整 */
+@media (max-width: 600px) {
+  .store-map-container.embed .store-map-world {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+  
+  .store-map-container.embed .store-map-controls {
+    right: 12px;
+    bottom: 24px;
+  }
+}
+
+
