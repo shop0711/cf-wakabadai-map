@@ -5,9 +5,11 @@ import type { MapPinData } from "../../data/mapData";
 import { MapPin } from "./MapPin";
 import { MapBottomSheet } from "./MapBottomSheet";
 import { UserLocationMarker } from "./UserLocationMarker";
+import { SurroundingArea } from "./SurroundingArea";
 import { useGeolocation } from "../../hooks/useGeolocation";
 import "./StoreMap.css";
 import "./UserLocationMarker.css";
+import "./SurroundingArea.css";
 
 const IS_DEV = import.meta.env.DEV;
 
@@ -344,41 +346,46 @@ export const StoreMap: React.FC = () => {
               </div>
 
               <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }}>
-                <div
-                  ref={canvasRef}
-                  className="store-map-canvas"
-                  onClick={handleCanvasClick}
-                >
-                  {/* Floor map image as background */}
-                  <img
-                    src={`${import.meta.env.BASE_URL}images/floor-map.png`}
-                    alt="コーチャンフォー若葉台店 フロアマップ"
-                    className="store-map-image"
-                    draggable={false}
-                  />
+                <div className="store-map-world">
+                  {/* 周辺環境（遊歩道と駐車場）背景 */}
+                  <SurroundingArea />
 
-                  {/* Pins */}
-                  {pins.map((pin) => (
-                    <MapPin
-                      key={`${pin.id}-${pin.x}-${pin.y}`} // Key changes on coordinates update to force component reset
-                      pin={pin}
-                      isSelected={selectedPin?.id === pin.id}
-                      onClick={handlePinClick}
-                      isEditMode={isEditMode}
-                      onDragStart={handlePinDragStart}
-                      onDragEnd={handlePinDragEnd}
-                      dragConstraintsRef={canvasRef}
-                      zoomScale={zoomScale}
+                  <div
+                    ref={canvasRef}
+                    className="store-map-canvas"
+                    onClick={handleCanvasClick}
+                  >
+                    {/* Floor map image as background */}
+                    <img
+                      src={`${import.meta.env.BASE_URL}images/floor-map.png`}
+                      alt="コーチャンフォー若葉台店 フロアマップ"
+                      className="store-map-image"
+                      draggable={false}
                     />
-                  ))}
 
-                  {/* ユーザー現在地マーカー */}
-                  {userPosition && (
-                    <UserLocationMarker
-                      position={userPosition}
-                      zoomScale={zoomScale}
-                    />
-                  )}
+                    {/* Pins */}
+                    {pins.map((pin) => (
+                      <MapPin
+                        key={`${pin.id}-${pin.x}-${pin.y}`} // Key changes on coordinates update to force component reset
+                        pin={pin}
+                        isSelected={selectedPin?.id === pin.id}
+                        onClick={handlePinClick}
+                        isEditMode={isEditMode}
+                        onDragStart={handlePinDragStart}
+                        onDragEnd={handlePinDragEnd}
+                        dragConstraintsRef={canvasRef}
+                        zoomScale={zoomScale}
+                      />
+                    ))}
+
+                    {/* ユーザー現在地マーカー */}
+                    {userPosition && (
+                      <UserLocationMarker
+                        position={userPosition}
+                        zoomScale={zoomScale}
+                      />
+                    )}
+                  </div>
                 </div>
               </TransformComponent>
             </>

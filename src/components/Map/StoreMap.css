@@ -74,12 +74,29 @@
   box-shadow: inset 0 6px 24px rgba(62, 39, 35, 0.08);
 }
 
+/* 🗺️ 周辺エリアも含めた広域ガイド全体のコンテナ */
+.store-map-world {
+  position: relative;
+  box-sizing: border-box;
+  /* 周辺に余白を拡張。北側の遊歩道(120px)、南側の駐車場(200px)、左右(80px) */
+  padding: 120px 80px 200px 80px;
+  background-color: #f7f3e8; /* 地面のベースカラー */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 100%;
+}
+
 .store-map-canvas {
   position: relative;
   display: block;
   width: 100%;
   max-width: 100%;
   height: auto;
+  z-index: 2; /* 背景レイヤー(z-index: 1)の前に配置 */
+  box-shadow: 0 16px 48px rgba(62, 39, 35, 0.22); /* 店舗エリアが立体的に浮き上がって見える境界表現 */
+  border-radius: 8px;
+  background-color: #ffffff;
 }
 
 .store-map-image {
@@ -88,9 +105,14 @@
   height: auto;
   pointer-events: none;
   user-select: none;
-  box-shadow: 0 10px 40px rgba(62, 39, 35, 0.15);
   border-radius: 8px;
-  background-color: #fff;
+}
+
+/* スマートフォン向けの余白自動調整 */
+@media (max-width: 600px) {
+  .store-map-world {
+    padding: 80px 40px 140px 40px; /* 画面サイズに合わせて自動的に周辺余白をコンパクト化 */
+  }
 }
 
 .store-map-controls {

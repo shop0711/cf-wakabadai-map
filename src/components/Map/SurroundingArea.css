@@ -1,0 +1,302 @@
+/* ============================================================
+   店舗周辺エリア（遊歩道＆駐車場）のプレミアムCSS
+   ============================================================ */
+
+.surrounding-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* すべてのイベントを透過させ、ドラッグやクリックを阻害しない */
+  z-index: 1; /* マップ画像の背後 */
+  overflow: hidden;
+  user-select: none;
+}
+
+/* 🧭 方位磁針 */
+.surrounding-compass {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-brown);
+  opacity: 0.65;
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 6px 10px;
+  border-radius: 20px;
+  border: 1px dashed rgba(109, 76, 65, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* 🌳 北側：遊歩道エリア */
+.surrounding-north {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120px; /* 上部パディングと一致 */
+  background: linear-gradient(180deg, #e8f5e9 0%, #f1f8e9 100%);
+  border-bottom: 3px solid rgba(46, 125, 50, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 40px;
+  box-sizing: border-box;
+}
+
+.greenery-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 16px;
+  background: repeating-linear-gradient(
+    45deg,
+    #c8e6c9,
+    #c8e6c9 10px,
+    #a5d6a7 10px,
+    #a5d6a7 20px
+  );
+  opacity: 0.4;
+}
+
+.walkway-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2e7d32;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 6px 14px;
+  border-radius: 30px;
+  width: fit-content;
+  border: 1px solid rgba(46, 125, 50, 0.2);
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.05);
+}
+
+.icon-trees {
+  color: #2e7d32;
+  animation: treeSway 4s ease-in-out infinite alternate;
+}
+
+@keyframes treeSway {
+  0% { transform: rotate(-3deg); }
+  100% { transform: rotate(3deg); }
+}
+
+.tree-decorations {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  font-size: 16px;
+  opacity: 0.65;
+}
+
+.tree-emoji {
+  animation: floatNode 3s ease-in-out infinite alternate;
+}
+.tree-emoji:nth-child(2n) {
+  animation-delay: 0.5s;
+}
+.tree-emoji:nth-child(3n) {
+  animation-delay: 1s;
+}
+
+@keyframes floatNode {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-3px); }
+}
+
+/* 🚗 南側：駐車場エリア */
+.surrounding-south {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 200px; /* 下部パディングと一致 */
+  background: linear-gradient(180deg, #fafafa 0%, #e0e0e0 100%);
+  border-top: 3px solid rgba(62, 39, 35, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 30px 40px;
+  box-sizing: border-box;
+}
+
+/* 駐車場の白線グリッド（CSSで超軽量・リアルに表現） */
+.parking-lots {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.15;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 20px 0;
+  box-sizing: border-box;
+}
+
+.parking-row {
+  width: 100%;
+  height: 35px;
+  border-top: 2px solid var(--color-brown);
+  border-bottom: 2px solid var(--color-brown);
+  /* 駐車線の等間隔グリッド */
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 28px,
+    var(--color-brown) 28px,
+    var(--color-brown) 30px
+  );
+}
+
+.parking-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-dark-brown);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 6px 14px;
+  border-radius: 30px;
+  width: fit-content;
+  border: 1px solid rgba(109, 76, 65, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 2;
+}
+
+.icon-car {
+  color: #1976d2;
+}
+
+.parking-notes {
+  font-size: 10px;
+  color: var(--color-brown);
+  opacity: 0.8;
+  margin-top: 8px;
+  font-weight: bold;
+  z-index: 2;
+}
+
+/* 🛣️ 東西の周辺道路 */
+.surrounding-roads {
+  position: absolute;
+  top: 120px;
+  bottom: 200px;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+.road-west {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px; /* 左右パディングと一致 */
+  background: linear-gradient(90deg, #f5f5f5 0%, #eceff1 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-right: 1px dashed rgba(0, 0, 0, 0.15);
+  padding: 0 6px;
+  box-sizing: border-box;
+}
+
+.road-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #78909c;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+.station-guide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  color: #1976d2;
+  font-weight: 700;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 6px 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(25, 118, 210, 0.15);
+}
+
+.icon-nav-west {
+  transform: rotate(-135deg); /* 駅の方向を指すアングル */
+}
+
+.road-east {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px; /* 左右パディングと一致 */
+  background: linear-gradient(-90deg, #f5f5f5 0%, #eceff1 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-left: 1px dashed rgba(0, 0, 0, 0.15);
+}
+
+/* ⚠️ 境界線とエリア外注釈 */
+.area-boundary-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--color-brown);
+  opacity: 0.35;
+  background: rgba(247, 243, 232, 0.9);
+  padding: 2px 12px;
+  border-radius: 10px;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(109, 76, 65, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.north-boundary {
+  top: 124px;
+}
+
+.south-boundary {
+  bottom: 204px;
+}
+
+/* タブレット・スマホ画面の拡大・縮小に応じたフォント調整 */
+@media (max-width: 600px) {
+  .surrounding-compass {
+    top: 12px;
+    right: 12px;
+    padding: 4px 8px;
+  }
+  
+  .walkway-path, .parking-banner {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .station-guide {
+    font-size: 8px;
+  }
+}
