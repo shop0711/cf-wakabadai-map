@@ -14,7 +14,11 @@ export const StoreMap: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isDraggingPin, setIsDraggingPin] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [zoomScale, setZoomScale] = useState<number>(1);
+  const [hasEditPermission, setHasEditPermission] = useState<boolean>(false);
+  
   const canvasRef = useRef<HTMLDivElement>(null);
+  const transformRef = useRef<any>(null);
 
   // Sync pins when mapPins database is updated, or load from localStorage
   useEffect(() => {
@@ -39,13 +43,29 @@ export const StoreMap: React.FC = () => {
     setPins(mapPins);
   }, []);
 
+  // Determine if editing options should be enabled (URL parameters: ?edit=true or ?dev=true)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hasParam = params.get("edit") === "true" || params.get("dev") === "true";
+    setHasEditPermission(IS_DEV || hasParam);
+  }, []);
+
   const handlePinClick = (pin: MapPinData) => {
     setSelectedPin(pin);
+    
+    // Smoothly focus and zoom onto the clicked pin (highly premium UX transition)
+    setTimeout(() => {
+      const pinElement = document.getElementById(`pin-${pin.id}`);
+      if (pinElement && transformRef.current) {
+        // Zoom to clicked element: Target, scale (1.8), duration (500ms)
+        transformRef.current.zoomToElement(pinElement, 1.8, 500);
+      }
+    }, 50);
   };
 
   // Debug: Log coordinates (X%, Y%) when clicking on the map canvas (dev only)
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!IS_DEV) return;
+    if (!hasEditPermission) return;
     if (isEditMode) return; // Skip coordinate logging on standard click if in edit mode
 
     const canvas = canvasRef.current;
@@ -224,40 +244,45 @@ export const StoreMap: React.FC = () => {
         </div>
         
         <div className="header-actions">
-          {isEditMode && (
+          {hasEditPermission && (
             <>
-              <button 
-                className="export-coords-btn" 
-                onClick={handleExportCoordinates}
-                title="現在の座標を TypeScript の配列定義の形でコピーします"
+              {isEditMode && (
+                <>
+                  <button 
+                    className="export-coords-btn" 
+                    onClick={handleExportCoordinates}
+                    title="現在の座標を TypeScript の配列定義の形でコピーします"
+                  >
+                    📋 座標コードをコピー
+                  </button>
+                  <button 
+                    className="reset-coords-btn" 
+                    onClick={handleResetToDefault}
+                    title="ピンの位置をすべてデフォルトの初期位置に戻します"
+                  >
+                    🔄 位置を初期化
+                  </button>
+                </>
+              )}
+
+              <button
+                className={`edit-mode-toggle-btn ${isEditMode ? "active" : ""}`}
+                onClick={() => {
+                  setIsEditMode(!isEditMode);
+                  setSelectedPin(null); // Close sheet when switching modes
+                }}
               >
-                📋 座標コードをコピー
-              </button>
-              <button 
-                className="reset-coords-btn" 
-                onClick={handleResetToDefault}
-                title="ピンの位置をすべてデフォルトの初期位置に戻します"
-              >
-                🔄 位置を初期化
+                {isEditMode ? "💾 調整完了 (通常モードへ)" : "📍 ピン調整モード (ドラッグ＆ドロップ可)"}
               </button>
             </>
           )}
-
-          <button
-            className={`edit-mode-toggle-btn ${isEditMode ? "active" : ""}`}
-            onClick={() => {
-              setIsEditMode(!isEditMode);
-              setSelectedPin(null); // Close sheet when switching modes
-            }}
-          >
-            {isEditMode ? "💾 調整完了 (通常モードへ)" : "📍 ピン調整モード (ドラッグ＆ドロップ可)"}
-          </button>
         </div>
       </header>
 
       {/* Map Area */}
       <div className="store-map-viewport">
         <TransformWrapper
+          ref={transformRef}
           initialScale={1}
           initialPositionX={0}
           initialPositionY={0}
@@ -267,6 +292,9 @@ export const StoreMap: React.FC = () => {
           wheel={{ step: 0.1, disabled: isDraggingPin }} // Disable wheel zoom when dragging pin
           panning={{ disabled: isDraggingPin }} // Disable map panning when dragging pin
           doubleClick={{ disabled: true }}
+          onTransform={(ref: any) => {
+            setZoomScale(ref.state.scale);
+          }}
         >
           {({ zoomIn, zoomOut, resetTransform }) => (
             <>
@@ -302,6 +330,7 @@ export const StoreMap: React.FC = () => {
                       onDragStart={handlePinDragStart}
                       onDragEnd={handlePinDragEnd}
                       dragConstraintsRef={canvasRef}
+                      zoomScale={zoomScale}
                     />
                   ))}
                 </div>
@@ -312,11 +341,11 @@ export const StoreMap: React.FC = () => {
       </div>
 
       {/* Dev mode indicator */}
-      {IS_DEV && (
+      {hasEditPermission && (
         <div className="dev-indicator">
           {isEditMode 
             ? "【編集モード】ピンを選択：ドラッグで移動、矢印キーで微調整(Shiftで大きく)、Escapeで選択解除" 
-            : "DEV: クリックで座標コピー | 右上のボタンでドラッグ調整可能"}
+            : "DEV: クリックで座標コピー | 右上のボタンでドラッグ調整可能（隠し編集モード有効）"}
         </div>
       )}
 

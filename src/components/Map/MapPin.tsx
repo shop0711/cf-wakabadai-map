@@ -12,6 +12,7 @@ interface MapPinProps {
   onDragStart?: () => void;
   onDragEnd?: (id: string, newX: number, newY: number) => void;
   dragConstraintsRef?: React.RefObject<HTMLDivElement | null>;
+  zoomScale?: number;
 }
 
 export const MapPin: React.FC<MapPinProps> = ({
@@ -22,6 +23,7 @@ export const MapPin: React.FC<MapPinProps> = ({
   onDragStart,
   onDragEnd,
   dragConstraintsRef,
+  zoomScale = 1,
 }) => {
   const Icon = getCategoryIcon(pin.category);
   const color = getCategoryColor(pin.category);
@@ -44,10 +46,12 @@ export const MapPin: React.FC<MapPinProps> = ({
 
   return (
     <motion.div
+      id={`pin-${pin.id}`}
       className={`map-pin-container ${isSelected ? "selected" : ""} ${isEditMode ? "edit-mode" : ""}`}
       style={{
         left: `${pin.x}%`,
         top: `${pin.y}%`,
+        scale: 1 / zoomScale,
       }}
       onClick={(e) => {
         e.stopPropagation();
