@@ -82,8 +82,13 @@ export const StoreMap: React.FC = () => {
     }, 50);
   };
 
-  // Debug: Log coordinates (X%, Y%) when clicking on the map canvas (dev only)
+  // Canvas click handler (supports logging in dev/edit mode, toggles fullscreen in embed mode)
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    // 1. Notify parent window for toggling fullscreen map (very premium UX)
+    if (isEmbed) {
+      window.parent.postMessage({ type: "MAP_BACKGROUND_CLICK" }, "*");
+    }
+
     if (!hasEditPermission) return;
     if (isEditMode) return; // Skip coordinate logging on standard click if in edit mode
 
@@ -102,7 +107,7 @@ export const StoreMap: React.FC = () => {
     }).catch(() => {
       setToastMessage(`座標を取得しました！\nx: ${xPct.toFixed(1)}, y: ${yPct.toFixed(1)}`);
     });
-  }, [isEditMode]);
+  }, [hasEditPermission, isEditMode, isEmbed]);
 
   // Handle drag start - temporarily disable map panning/zooming to allow smooth pin drag
   const handlePinDragStart = () => {
