@@ -74,44 +74,62 @@
   box-shadow: inset 0 6px 24px rgba(62, 39, 35, 0.08);
 }
 
-/* 🗺️ 周辺エリアも含めた広域ガイド全体のコンテナ */
+/* 🗺️ 周辺エリアも含めて縦横比を 4:5 に完全固定した「統合マップキャンバス」 */
 .store-map-world {
   position: relative;
   box-sizing: border-box;
-  /* 周辺に余白を拡張。北側の遊歩道(120px)、南側の駐車場(200px)、左右(80px) */
-  padding: 120px 80px 200px 80px;
-  background-color: #f7f3e8; /* 地面のベースカラー */
+  width: 96%; /* モバイルでもPCでも画面内に美しく収まるように幅を最大化 */
+  max-width: 820px; /* PCでの視認性を考慮した最大幅制限 */
+  margin: 20px auto;
+  aspect-ratio: 4 / 5; /* 縦横比を 4:5 (1024x1280相当) に完全に固定！ */
+  display: flex;
+  flex-direction: column;
+  background-color: #f7f3e8;
+  box-shadow: 0 20px 50px rgba(62, 39, 35, 0.22); /* 店舗および周辺を包む高級感のある3Dドロップシャドウ */
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 🏢 中央の店舗マップエリア (全体の 60% の高さを維持) */
+.store-map-canvas-wrapper {
+  height: 60%;
+  width: 100%;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-width: 100%;
+  background-color: #faf6eb;
+  box-sizing: border-box;
 }
 
+/* 🗺️ 店舗フロアマップ本体 (左右に 8% ずつの道路を残し、残りの 84% 幅にピッタリ配置) */
 .store-map-canvas {
   position: relative;
   display: block;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  z-index: 2; /* 背景レイヤー(z-index: 1)の前に配置 */
-  box-shadow: 0 16px 48px rgba(62, 39, 35, 0.22); /* 店舗エリアが立体的に浮き上がって見える境界表現 */
-  border-radius: 8px;
+  width: 84%; /* 100% - (左道路8% + 右道路8%) = 84% */
+  height: 100%; /* 高さはラッパーに100%追従 */
+  z-index: 2; /* 道路背景より上に配置 */
+  box-shadow: 0 4px 20px rgba(62, 39, 35, 0.08); /* 店舗画像の境界をクッキリ際立たせるシャドウ */
   background-color: #ffffff;
 }
 
 .store-map-image {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: fill; /* アスペクト比が完全に管理されているため、fillでピッタリ配置 */
   pointer-events: none;
   user-select: none;
-  border-radius: 8px;
 }
 
-/* スマートフォン向けの余白自動調整 */
+/* スマートフォン向けの余白・位置自動調整 */
 @media (max-width: 600px) {
   .store-map-world {
-    padding: 80px 40px 140px 40px; /* 画面サイズに合わせて自動的に周辺余白をコンパクト化 */
+    width: 98%;
+    margin: 10px auto;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(62, 39, 35, 0.15);
   }
 }
 

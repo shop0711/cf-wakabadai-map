@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { Trees, Car, Compass, Navigation } from "lucide-react";
 import { mapPins } from "../../data/mapData";
 import type { MapPinData } from "../../data/mapData";
 import { MapPin } from "./MapPin";
 import { MapBottomSheet } from "./MapBottomSheet";
 import { UserLocationMarker } from "./UserLocationMarker";
-import { SurroundingArea } from "./SurroundingArea";
 import { useGeolocation } from "../../hooks/useGeolocation";
 import "./StoreMap.css";
 import "./UserLocationMarker.css";
@@ -347,44 +347,105 @@ export const StoreMap: React.FC = () => {
 
               <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }}>
                 <div className="store-map-world">
-                  {/* 周辺環境（遊歩道と駐車場）背景 */}
-                  <SurroundingArea />
+                  {/* 🧭 北を示す方位磁針 */}
+                  <div className="surrounding-compass">
+                    <Compass size={14} />
+                    <span>N</span>
+                  </div>
 
-                  <div
-                    ref={canvasRef}
-                    className="store-map-canvas"
-                    onClick={handleCanvasClick}
-                  >
-                    {/* Floor map image as background */}
-                    <img
-                      src={`${import.meta.env.BASE_URL}images/floor-map.png`}
-                      alt="コーチャンフォー若葉台店 フロアマップ"
-                      className="store-map-image"
-                      draggable={false}
-                    />
+                  {/* 🌳 北側：若葉台遊歩道 (Flex子要素 - 高さ 15%) */}
+                  <div className="surrounding-north">
+                    <div className="greenery-strip" />
+                    <div className="walkway-path">
+                      <Trees size={12} className="icon-trees" />
+                      <span>若葉台遊歩道 (緑豊かな散策路)</span>
+                    </div>
+                    {/* 遊歩道沿いの木々のビジュアル装飾 */}
+                    <div className="tree-decorations">
+                      <span className="tree-emoji">🌳</span>
+                      <span className="tree-emoji">🌲</span>
+                      <span className="tree-emoji">🌳</span>
+                      <span className="tree-emoji">🌲</span>
+                    </div>
+                    {/* 境界線とエリア外注釈 */}
+                    <div className="area-boundary-label north-boundary">
+                      <span>⚠ これより先は店舗外（遊歩道エリア）です</span>
+                    </div>
+                  </div>
 
-                    {/* Pins */}
-                    {pins.map((pin) => (
-                      <MapPin
-                        key={`${pin.id}-${pin.x}-${pin.y}`} // Key changes on coordinates update to force component reset
-                        pin={pin}
-                        isSelected={selectedPin?.id === pin.id}
-                        onClick={handlePinClick}
-                        isEditMode={isEditMode}
-                        onDragStart={handlePinDragStart}
-                        onDragEnd={handlePinDragEnd}
-                        dragConstraintsRef={canvasRef}
-                        zoomScale={zoomScale}
+                  {/* 🏢 中央：店舗マップエリア (Flex子要素 - 高さ 60%) */}
+                  <div className="store-map-canvas-wrapper">
+                    {/* 🛣️ 東西の周辺道路 (店舗の左右に絶対配置) */}
+                    <div className="surrounding-roads">
+                      <div className="road-west">
+                        <div className="road-label">若葉台通り</div>
+                        <div className="station-guide">
+                          <Navigation size={10} className="icon-nav-west" />
+                          <span>至 若葉台駅 (徒歩5分)</span>
+                        </div>
+                      </div>
+                      <div className="road-east">
+                        <div className="road-label">鶴川街道方面 →</div>
+                      </div>
+                    </div>
+
+                    <div
+                      ref={canvasRef}
+                      className="store-map-canvas"
+                      onClick={handleCanvasClick}
+                    >
+                      {/* Floor map image as background */}
+                      <img
+                        src={`${import.meta.env.BASE_URL}images/floor-map.png`}
+                        alt="コーチャンフォー若葉台店 フロアマップ"
+                        className="store-map-image"
+                        draggable={false}
                       />
-                    ))}
 
-                    {/* ユーザー現在地マーカー */}
-                    {userPosition && (
-                      <UserLocationMarker
-                        position={userPosition}
-                        zoomScale={zoomScale}
-                      />
-                    )}
+                      {/* Pins */}
+                      {pins.map((pin) => (
+                        <MapPin
+                          key={`${pin.id}-${pin.x}-${pin.y}`} // Key changes on coordinates update to force component reset
+                          pin={pin}
+                          isSelected={selectedPin?.id === pin.id}
+                          onClick={handlePinClick}
+                          isEditMode={isEditMode}
+                          onDragStart={handlePinDragStart}
+                          onDragEnd={handlePinDragEnd}
+                          dragConstraintsRef={canvasRef}
+                          zoomScale={zoomScale}
+                        />
+                      ))}
+
+                      {/* ユーザー現在地マーカー */}
+                      {userPosition && (
+                        <UserLocationMarker
+                          position={userPosition}
+                          zoomScale={zoomScale}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 🚗 南側：お客様駐車場 (Flex子要素 - 高さ 25%) */}
+                  <div className="surrounding-south">
+                    <div className="parking-lots">
+                      <div className="parking-row" />
+                      <div className="parking-row" />
+                    </div>
+
+                    <div className="parking-banner">
+                      <Car size={12} className="icon-car" />
+                      <span>お客様駐車場 (約605台収容・店舗利用で無料)</span>
+                    </div>
+
+                    <div className="parking-notes">
+                      ※南側道路および遊歩道からの車両進入はできません。専用入口をご利用ください。
+                    </div>
+
+                    <div className="area-boundary-label south-boundary">
+                      <span>⚠ これより先は店舗外（駐車場エリア）です</span>
+                    </div>
                   </div>
                 </div>
               </TransformComponent>
