@@ -285,7 +285,7 @@ export const StoreMap: React.FC = () => {
                 >
                   {/* Floor map image as background */}
                   <img
-                    src="/images/floor-map.png"
+                    src={`${import.meta.env.BASE_URL}images/floor-map.png`}
                     alt="コーチャンフォー若葉台店 フロアマップ"
                     className="store-map-image"
                     draggable={false}
